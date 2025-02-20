@@ -35,6 +35,12 @@ def define_env(env):
 
             # Values with dynamic removal
             image_path = data.get('image_path', '').strip()
+            # Handling image paths (relative and absolute)
+            if 'github.com' in image_path:
+                # Convert GitHub page URL to raw content URL
+                image_path = image_path.replace(
+                    'github.com', 'raw.githubusercontent.com'
+                ).replace('/blob/', '/')
             repo_link = data.get('repo_link', '').strip()
             repo_name = data.get('repo_name', '').strip()
             entry_link = data.get('entry_link', '').strip()
@@ -54,7 +60,14 @@ def define_env(env):
 
             # Conditional additions
             if image_path:
-                card_content.append(f'![{image_name}]({image_path})\n')
+                card_content.append(
+                    f'<div class="click-zoom">\n'
+                    f'    <label>\n'
+                    f'        <input type="checkbox">\n'
+                    f'        <img src="{image_path}" alt="{image_name}" width="100%" title="Click to zoom in">\n'
+                    f'    </label>\n'
+                    f'</div>\n'
+                )
             if repo_link:
                 if not repo_name:
                     repo_name = repo_link
@@ -122,5 +135,7 @@ def define_env(env):
             file_path = file_path.replace('docs/', '', 1)
             # Call the render_card_from_file function directly
             rendered_cards += render_card_from_file(file_path) + '\n'
+
+        print(rendered_cards)
 
         return rendered_cards
